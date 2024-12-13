@@ -1,5 +1,4 @@
 # импорт необходимых библиотек
-import time
 from threading import Thread
 from queue import Queue
 from time import sleep
@@ -11,8 +10,8 @@ class Table:
         и guest - гость, который сидит за этим столом (по умолчанию None)"""
 
     def __init__(self, number):
-        self.number = number
-        self.guest = None
+        self.number = number  # номер стола
+        self.guest = None  # гость, который сидит за этим столом
 
 
 class Guest(Thread):
@@ -21,11 +20,10 @@ class Guest(Thread):
 
     def __init__(self, name):
         super().__init__()
-        self.name = name
+        self.name = name  # имя гостя
 
     def run(self):
         sleep(randint(3, 10))
-
 
 
 class Cafe():
@@ -35,8 +33,8 @@ class Cafe():
         кафе (любая коллекция)"""
 
     def __init__(self, *tables):
-        self.queue = Queue()
-        self.tables = list(tables)
+        self.queue = Queue()  # очередь
+        self.tables = tables  # столы в этом кафе
 
     def guest_arrival(self, *guests):  # Метод принимает неограниченное кол-во гостей
         for guest in guests:  # цикл гостя
@@ -55,7 +53,7 @@ class Cafe():
     def discuss_guests(self):  # Метод имитирует процесс обслуживания гостей
         """ Цикл обслуживания. Должно происходить пока очередь не пустая (метод empty)
             или хотя бы один стол занят."""
-        while (not self.queue.empty()) or (not (t.guest for t in self.tables)):
+        while not (self.queue.empty()) or not (any(t.guest for t in self.tables)):
             for table in self.tables:  # цикл перебора столов
                 """ очередь ещё не пуста (метод empty) или один из столов освободился (None), то
                     текущему столу присваивается гость взятый из очереди (queue.get())"""
@@ -65,7 +63,7 @@ class Cafe():
                     table.guest.start()  # запустить поток этого гостя
                 """ Условие наличия за столом гостя (поток) и гость (поток) закончил
                     приём пищи (поток завершил работу - метод is_alive)"""
-                if (not table.guest is None) and (table.guest.is_alive()):
+                if (not table.guest is None) and (not table.guest.is_alive()):
                     print(f'{table.guest.name} покушал(-а) и ушёл(ушла)')
                     print(f'Стол номер {table.number} свободен')
                     table.guest = None  # текущий стол освобождается
